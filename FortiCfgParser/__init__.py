@@ -13,7 +13,7 @@ import io
 from typing import Optional
 
 from ._config import FgtConfig, FgtConfigRoot
-from ._config import FgtConfigObject, FgtConfigTable, FgtConfigSet, FgtConfigUnset, FgtConfigRoot
+from ._config import FgtConfigObject, FgtConfigTable, FgtConfigSet, FgtConfigUnset
 from ._config import qus, uqs
 from ._config import section_object, section_table
 from ._parser import FgtConfigRootFactory, FgtConfigParser
