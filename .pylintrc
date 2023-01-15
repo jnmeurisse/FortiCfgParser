@@ -1,0 +1,8 @@
+[MESSAGES CONTROL]
+# C0103 - Name doesn't conform to naming style
+# C0111 - Missing docstring
+# R0903 - Too few public methods
+disable=C0103,C0111,R0903
+
+[FORMAT]
+max-line-length=120
