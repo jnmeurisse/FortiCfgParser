@@ -123,15 +123,15 @@ class FgtConfigBody(FgtConfigNode, FgtConfigDict, ABC):
     """ An abstract base class for a CONFIG table or a CONFIG object. """
 
     def traverse(self, key: str, fn: FgtConfigTraverseCallback, parents: FgtConfigStack, data: Any) -> None:
-        # .. enter the config section
+        # … enter the config section
         fn(True, (key, self), parents, data)
         parents.append((key, self))
 
-        # .. enumerate all items in this dictionary
+        # ... enumerate all items in this dictionary
         for item_key, item_value in self.items():
             item_value.traverse(item_key, fn, parents, data)
 
-        # .. leave the config section
+        # … leave the config section
         parents.pop()
         fn(False, (key, self), parents, data)
 
