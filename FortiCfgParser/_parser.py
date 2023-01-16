@@ -6,16 +6,13 @@
 #
 
 from dataclasses import dataclass
-from typing import Iterable, Optional, Final, Union, cast, Callable, final, TextIO
+from typing import Optional, Final, Union, cast, Callable, final, TextIO
 
 from ._config import (FgtConfig, FgtConfigToken, FgtConfigTokens, FgtConfigSet, FgtConfigObject,
                       FgtConfigUnset, FgtConfigTable, FgtConfigRoot, FgtConfigComments, FgtConfigNode)
 
 _Char = str
 """ The _Char type represents a single character."""
-
-_CharStream = Iterable[_Char]
-""" A stream of characters."""
 
 FgtConfigRootFactory = Callable[[str, FgtConfigObject], FgtConfigRoot]
 """ Callable used to instantiate a `FgConfigRoot`.  """
@@ -66,7 +63,7 @@ class FgtConfigParser(object):
             the escape character (\\).
 
         reserved-word
-            A reserved-word argument is a sequence of alpha numerical characters.
+            A reserved-word argument is a sequence of alphanumerical characters.
 
         comment
             A line starting with the character #
@@ -130,7 +127,7 @@ class FgtConfigParser(object):
             self._char = c
 
         def _next_ns(self) -> _Char:
-            """ Return the next non space character including EOF or EOL.
+            """ Return the next non-space character including EOF or EOL.
                 \\\\n is used as a delimiter and not considered as a space.
             """
             c = self._next()
