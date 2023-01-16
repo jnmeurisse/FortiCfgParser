@@ -1,0 +1,17 @@
+[project]
+name = "FortiCfgParser"
+version = "1.0.0"
+description = "A FortiGate configuration file parser"
+requires-python = ">= 3.9"
+authors = [
+    {name = "Jean-Noel Meurisse"}
+]
+license = {text = "GNU General Public License v3.0"}
+keywords = ["fortigate", "parser"]
+
+[project.urls]
+home = "https://github.com/jnmeurisse/FortiCfgParser"
+
+[build-system]
+requires = ["setuptools >= 42"]
+build-backend = "setuptools.build_meta"
