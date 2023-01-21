@@ -1,4 +1,4 @@
-<h1 align="center">FortiCfgParser<br>A FortiGate configuration file parser</h1>
+<h1 align="center">A FortiGate configuration file parser</h1>
 
 # Description
 This package provides a non-validating FortiGate configuration file parser. 
