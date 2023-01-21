@@ -9,7 +9,8 @@ from dataclasses import dataclass
 from typing import Optional, Final, Union, cast, Callable, final, TextIO
 
 from ._config import (FgtConfig, FgtConfigToken, FgtConfigTokens, FgtConfigSet, FgtConfigObject,
-                      FgtConfigUnset, FgtConfigTable, FgtConfigRoot, FgtConfigComments, FgtConfigNode)
+                      FgtConfigUnset, FgtConfigTable, FgtConfigRoot, FgtConfigComments,
+                      FgtConfigNode)
 
 _Char = str
 """ The _Char type represents a single character."""
@@ -216,7 +217,8 @@ class FgtConfigParser(object):
             tokens: FgtConfigTokens = FgtConfigTokens()
             while not self._is_eol(token := self.next_token()):
                 if self.is_comment(token):
-                    raise FgtConfigSyntaxError(f"syntax error: unexpected comment found at {self.get_pos()}")
+                    raise FgtConfigSyntaxError(
+                        f"syntax error: unexpected comment found at {self.get_pos()}")
                 tokens.append(token)
 
             return tokens
@@ -240,7 +242,9 @@ class FgtConfigParser(object):
 
     @classmethod
     def _parse_set_command(cls, lexer: Lexer) -> tuple[str, FgtConfigSet]:
-        """ Parse a SET command.  The method returns a pair consisting of the parameter name and a
+        """ Parse a SET command.
+
+        The method returns a pair consisting of the parameter name and a
         list of values : (<parameter_name>, [<parameter_value1>, <parameter_value2>, ...]).
 
         :return: the parameter name and a `FgtConfigSet` object containing all values.
@@ -254,8 +258,10 @@ class FgtConfigParser(object):
 
     @classmethod
     def _parse_unset_command(cls, lexer: Lexer) -> tuple[str, FgtConfigUnset]:
-        """ Parse a UNSET command.  The method returns a pair consisting of the parameter name and an
-         empty list of values : (<parameter_name>, []).
+        """ Parse a UNSET command.
+
+        The method returns a pair consisting of the parameter name and an empty list of
+        values : (<parameter_name>, []).
 
          :return: the parameter name and `FgtConfigSet` object.
          :raise FgtSyntaxError: if the unset command can not be parsed.
@@ -282,7 +288,8 @@ class FgtConfigParser(object):
         if entry == 'config':
             return cls._parse_config(lexer)
 
-        raise FgtConfigSyntaxError(f"syntax error: invalid entry '{entry[:10]}' at position {lexer.get_pos()}")
+        raise FgtConfigSyntaxError(
+            f"syntax error: invalid entry '{entry[:10]}' at position {lexer.get_pos()}")
 
     @classmethod
     def _parse_table_entry(cls, lexer: Lexer, vdom: bool = False) -> tuple[str, FgtConfigObject]:
@@ -293,11 +300,13 @@ class FgtConfigParser(object):
         """
         edit_key: FgtConfigTokens = lexer.next_parameters()
         if len(edit_key) != 1:
-            raise FgtConfigSyntaxError(f"syntax error: invalid table configuration at position {lexer.get_pos()}")
+            raise FgtConfigSyntaxError(
+                f"syntax error: invalid table configuration at position {lexer.get_pos()}")
 
-        # parse until next keyword or end keyword.  The end keyword is accepted only in a vdom root configuration.
-        # A configuration file including vdoms contains a table param without the `next` instruction.
-        # This particular case forces us to detect the end keyword as a delimiter of an edit instruction.
+        # parse until next keyword or end keyword.  The end keyword is accepted only in a vdom
+        # root configuration.  A configuration file including vdoms contains a table param without
+        # the `next` instruction.  This particular case forces us to detect the end keyword as a
+        # delimiter of an edit instruction.
         # Example:
         #       config vdom
         #           edit vdom_name
@@ -328,7 +337,8 @@ class FgtConfigParser(object):
         # get config keys
         config_keys: FgtConfigTokens = lexer.next_parameters()
         if len(config_keys) == 0:
-            raise FgtConfigSyntaxError(f"syntax error: invalid config at position {lexer.get_pos()}")
+            raise FgtConfigSyntaxError(
+                f"syntax error: invalid config at position {lexer.get_pos()}")
 
         # parse until end keyword
         token = lexer.next_snl_token()
@@ -342,7 +352,8 @@ class FgtConfigParser(object):
 
                 token = lexer.next_snl_token()
         else:
-            # it is a config object : config name\n set name1 value1\nset name2 value2\nconfig subconf\nend\nend
+            # it is a config object such as :
+            # config name\n set name1 value1\nset name2 value2\nconfig subconf\nend\nend
             config = FgtConfigObject()
             while token != 'end':
                 ck, cv = cls._parse_config_command(token, lexer)
@@ -358,7 +369,10 @@ class FgtConfigParser(object):
         return FgtConfigRoot(a_map)
 
     @classmethod
-    def parse(cls, input_stream: TextIO, root_factory: Optional[FgtConfigRootFactory] = None) -> FgtConfig:
+    def parse(cls,
+              input_stream: TextIO,
+              root_factory: Optional[FgtConfigRootFactory] = None
+              ) -> FgtConfig:
         """ Parse a FortiGate configuration.
 
         :param input_stream: the configuration
@@ -368,7 +382,11 @@ class FgtConfigParser(object):
         :raise FgtEosError: if an end of stream is encountered during the parsing.
         """
         # get a root factory
-        factory: FgtConfigRootFactory = root_factory if root_factory is not None else cls._create_root_config
+        factory: FgtConfigRootFactory
+        if root_factory is not None:
+            factory = root_factory
+        else:
+            factory = cls._create_root_config
 
         # allocate various dictionaries
         comments = FgtConfigComments()
@@ -389,9 +407,9 @@ class FgtConfigParser(object):
                 if k == FgtConfigParser.VDOM:
                     # a vdom is detected.  The vdom configuration file contains duplicate entries.
                     # The first definition is a table declaring the name of the different vdoms.
-                    # The second definition contains the actual configuration.  In our implementation
-                    # the first definition is overloaded by the second occurrence.  It does not matter
-                    # since we preserve the name of the vdom.
+                    # The second definition contains the actual configuration.  In our
+                    # implementation the first definition is overloaded by the second occurrence.
+                    # It does not matter since we preserve the name of the vdom.
                     for entry, value in v.items():
                         if isinstance(value, FgtConfigObject):
                             vdoms_config[entry] = factory(comments.version, value)
