@@ -1,3 +1,5 @@
 .mypy_cache
+/.idea/
 /dist/
+/build/
 /FortiCfgParser.egg-info/
