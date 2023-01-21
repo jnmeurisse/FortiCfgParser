@@ -1,7 +1,8 @@
 import unittest
 from collections import deque
 
-from FortiCfgParser import parse_config, FgtConfig, FgtConfigObject, FgtConfigTable, FgtConfigSet, FgtConfigRoot
+from FortiCfgParser import (parse_config, FgtConfig, FgtConfigObject, FgtConfigTable,
+                            FgtConfigSet, FgtConfigRoot)
 from FortiCfgParser._parser import FgtConfigSyntaxError
 
 
@@ -44,7 +45,7 @@ class TestParser(unittest.TestCase):
             """
         config = parse_config(config_text)
 
-        self.assertTrue(isinstance(config, FgtConfig))
+        self.assertIsInstance(config, FgtConfig)
 
         conf_table = config.root.c_table('test')
         self.assertIsInstance(conf_table, FgtConfigTable)
@@ -230,29 +231,29 @@ class TestParser(unittest.TestCase):
             nodes.append(node[0])
         self.assertListEqual(paths, nodes)
 
-    def test_travers(self):
+    def test_traverse(self):
         config_text = \
             """
-                config level1.1
-                    config level2.1.1
+                config level1
+                    config level1.1
                     end
-                    config level2.1.2
+                    config level1.2
                         set param1 value1
                     end
-                    config level2.1.3
+                    config level1.3
                     end
                 end
-                config level1.2
-                    config level2.2.1
+                config level2
+                    config level2.1
                     end
-                    config level2.2.2
+                    config level2.2
                     end
-                    config level2.2.3
+                    config level2.3
                     end                
                 end
-                config level1.3
-                    config level2.3.1
-                        config level3.3.1
+                config level3
+                    config level3.1
+                        config level3.1.1
                             set param1 value1
                             set param2 value2
                         end
@@ -260,14 +261,32 @@ class TestParser(unittest.TestCase):
                 end
             """
 
-        def cb(enter, node, stack, data):
+        nodes = []
+
+        def cb(enter, node, stack,  data):
+            nonlocal nodes
             if enter:
-                print(node[0], node[1])
-            pass
+                nodes.append(node[0])
 
         config = parse_config(config_text)
         root = config.root
         root.traverse("root", cb, deque(), None)
+        self.assertListEqual(nodes, [
+            "level1",
+            "level1.1",
+            "level1.2",
+            "param1",
+            "level1.3",
+            "level2",
+            "level2.1",
+            "level2.2",
+            "level2.3",
+            "level3",
+            "level3.1",
+            "level3.1.1",
+            "param1",
+            "param2"
+        ])
 
     def test_error_1(self):
         config_text = "config test end"

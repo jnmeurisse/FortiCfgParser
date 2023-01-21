@@ -3,6 +3,7 @@ import unittest
 from typing import cast
 
 from FortiCfgParser import parse_file, FgtConfigRoot, section_table, FgtConfigTable
+from tests import make_test_path
 
 
 class TestConfig(unittest.TestCase):
@@ -27,16 +28,17 @@ class TestConfig(unittest.TestCase):
         with open(filename, "r") as f:
             text_config_2 = f.read().split("\n")
 
+        # and compare for equality
         return TestConfig._same_config(text_config_1, text_config_2)
 
     def test_config1(self) -> None:
-        self.assertTrue(TestConfig._parse_and_compare("config/test1.conf"))
+        self.assertTrue(TestConfig._parse_and_compare(make_test_path("test1.conf")))
 
     def test_config2(self) -> None:
-        self.assertTrue(TestConfig._parse_and_compare("config/test2.conf"))
+        self.assertTrue(TestConfig._parse_and_compare(make_test_path("test2.conf")))
 
     def test_config3(self) -> None:
-        self.assertTrue(TestConfig._parse_and_compare("config/test3.conf"))
+        self.assertTrue(TestConfig._parse_and_compare(make_test_path("test3.conf")))
 
     def test_factory(self) -> None:
         class RootConfig(FgtConfigRoot):
@@ -44,24 +46,25 @@ class TestConfig(unittest.TestCase):
             def firewall_address6(self) -> FgtConfigTable:  # type: ignore
                 ...
 
-        config = parse_file("config/test3.conf", lambda _, cfg: RootConfig(cfg))
+        config = parse_file(make_test_path("test3.conf"), lambda _, cfg: RootConfig(cfg))
         config_root = cast(RootConfig, config.root)
         config_global = config_root.system_global()
-        self.assertEqual(config_global.opt('timezone'), '12')
+        self.assertEqual("12", config_global.opt("timezone"))
 
         config_address = config_root.firewall_address6()
         self.assertEqual(
-            config_address.c_entry('none').opt('ip6'),
-            '::/128')
+            "::/128",
+            config_address.c_entry('none').opt('ip6')
+            )
 
     def test_section(self) -> None:
-        config = parse_file("config/test3.conf")
+        config = parse_file(make_test_path("test3.conf"))
         config_root = config.root
 
-        for k, v in config_root.sections('router  bgp'):
-            self.assertEqual(k, "router bgp")
+        for k, v in config_root.sections("router  bgp"):
+            self.assertEqual("router bgp", k)
 
         section_count = 0
         for _, _ in config_root.sections('router'):
             section_count += 1
-        self.assertEqual(section_count, 8)
+        self.assertEqual(8, section_count)
